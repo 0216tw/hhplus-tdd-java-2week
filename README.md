@@ -137,7 +137,7 @@ Ref: lecture_schedule.lecture_id < enrollment.lecture_id   <br>
 <br><br>
 
 ### 개발 과정
-2024.06.23 요구사항 분석, ERD 작성 및 구축
+2024.06.23 spring 세팅 , 요구사항 분석, ERD 작성 및 구축 , 
 
 
 
