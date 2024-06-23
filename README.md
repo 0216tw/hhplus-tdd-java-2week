@@ -188,14 +188,55 @@ DTO 와 Domain 둘다 가능한데 보통 DTO는 기본적인 검증을 하고, 
 => Domain에 핵심 비즈니스 로직을 넣어서 상태를 관리하고 객체지향성을 강화한다.<br>
 Service는 트랜잭션 관리나 도메인 객체간의 조합을 담당한다 <br>
 
+잘못된 HTTP 메서드로 요청이 온 경우를 테스트 할 수 있나? -> 전체 웹 애플리케이션 컨텍스트를 시뮬레이션하므로 검증 가능하다고 함
+
+### 2. 전역 예외 처리기를 이용하면 404 NotFound 와 같은 오류를 커스텀화 할 수 있다.
+
+(1) ControllerAdvice를 이용해 특정 예외를 캐치해 메세지를 설정한다. (컨트롤러 전반적으로 처리가 가능하다) <br> 
+```java
+@RestControllerAdvice
+public class GlobalExceptionAdvice {
+
+    @ExceptionHandler(NoHandlerFoundException.class) //404 예외를 캐치한다. 
+    public ResponseEntity<String> handleNotFound(NoHandlerFoundException ex) {
+        return new ResponseEntity<>("올바르지 않은 경로입니다", HttpStatus.NOT_FOUND); //메세지와 오류를 새롭게 정해 반환 
+    }
+}
+```
+(2) Spring Boot의 application.properties에 아래와 같이 설정을 추가한다 <br> 
+
+```java
+spring.mvc.throw-exception-if-no-handler-found=true  #Spring Mvc 가 적절한 핸들러를 찾기 못한경우 예외를 던지도록 처리 
+``` 
 
 
 ---
 
 이슈 정리 
 
-Lombok이 안먹혔는데 아래와 같이 처리해서 해결
+### 1. Lombok이 안먹혔는데 아래와 같이 처리해서 해결
 
 ![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/2e72d07d-7ada-4268-b7b7-889bd007690c)
 
+### 2. 
+mockMvc를 이용해서 부적절한 URL 등을 테스트하려고 할때 404 not found 예외가 어드바이스에 잡혀야하는데  <br>
+perform 은 오직 Exception을 처리한다.. 따로 404 나 400 을 리턴하는 방법은?  <br>
+혹은 단위테스트 레벨에서는 이 방법은 불가능한 것인가? @WebMvcTest 쓰면 되지 않나?  <br>
+
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/5e306577-27af-498d-a752-8a935a1baba4)
+
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/b110bc68-8576-4d24-998e-af170764f73c)
+
+문제해결! <br> 
+먼저 Advice에 Exception.class 예외 처리를 제거했다. (아마 예외가 구체적으로 바뀌기 전에 Exception으로 그냥 처리해버린게 아닐까..이건 더 알아봐야한다) <br> 
+
+위 Exception을 제거했더니 테스트 케이스에 대해서 404 , 405 등이 제대로 떴다.  <br> 
+
+그런데 404같은 경우에 NoHandlerFoundException 가 아니라 NoResourceFoundException 으로 해야 404가 잡혔다. <br> 
+
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/7faa677a-fe3a-4399-9d6b-c4a96bd01c13)
+
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/3c92025a-e341-499f-98c8-6fbe4d68583a)
+
+근데 이렇게 예외를 상세하게 하는것이 좋나? 아니면 500 에러로 추상화하는게 좋은가? 
 
