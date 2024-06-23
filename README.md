@@ -139,7 +139,74 @@ Ref: lecture_schedule.lecture_id < enrollment.lecture_id   <br>
 <br><br>
 
 ### 개발 과정
-2024.06.23 spring 세팅 요구사항 분석, ERD 작성 및 구축 , LectureController 구축
+2024.06.23 spring 세팅 요구사항 분석, ERD 작성 및 구축 , LectureController 구축 , Controller API 단위 테스트
+
+2024.06.24 할일 
+일단 아래 소스 분석 및 공부하고 날짜 검증을 위한 별도의 어노테이션 + 클래스 생성하자 
+```java
+package com.plusbackend.week2.validation;
+
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Constraint(validatedBy = DateValidator.class)
+@Target({ ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValidDate {
+    String message() default "유효하지 않은 날짜 형식입니다. yyyyMMdd 형식이어야 합니다.";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
+```
+
+```java
+package com.plusbackend.week2.validation;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+public class DateValidator implements ConstraintValidator<ValidDate, String> {
+
+    private static final String DATE_FORMAT = "yyyyMMdd";
+
+    @Override
+    public void initialize(ValidDate constraintAnnotation) {
+    }
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (value == null) {
+            return false;
+        }
+
+        if (value.length() != 8 || !value.matches("\\d{8}")) {
+            return false;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+        sdf.setLenient(false);
+
+        try {
+            sdf.parse(value);
+        } catch (ParseException e) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+ @NotBlank(message = "LectureDy는 필수 입력값입니다.")
+    @ValidDate // 커스텀 날짜 검증 어노테이션 적용
+    private String lectureDy; // 강의 일자 (날짜로 검증 필요)
+
+```
 
 
 
@@ -209,6 +276,28 @@ public class GlobalExceptionAdvice {
 spring.mvc.throw-exception-if-no-handler-found=true  #Spring Mvc 가 적절한 핸들러를 찾기 못한경우 예외를 던지도록 처리 
 ``` 
 
+### 3. 잘못된 필드명은 @RequestBody에서 그냥 무시하고 매핑할 수도 있다. 
+
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/74ba7919-cd52-44f1-8626-48449dab54f9)
+
+
+예) userId가 필드명인데 u 로 보내고 정상통과가 되었음 <br> 
+그래서 DTO에 필수값에 대한 @NotNull , @NotEmpty 등 validation을 추가하고 예외 전처리기에 MethodArgumentNotValidException 을 추가해보면 음 안된다! <br> 
+다른방법을 써보자 <br> 
+이번에는 ObjectMapper에 FAIL_ON_UNKNOWN_PROPERTIES 을 설정해 알수없는 필드에 예외를 발생시키도록 세팅 및 테스트를 해보겠다. <br> 
+정상 처리 되었다. 나중에 Controller 추가로 구현하면서 해당 옵션을 Controller단으로 올려야 겠다 <br> 
+
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/a67a17c4-dd10-4cd6-b6a5-c83436240780)
+
+
+
+
+
+### 4. @NotNull , @NotEmpty , @NotBlank 
+
+@NotBlank : null 안됨 , 비어있으면 안됨 , 공백문자만 있는거 안됨
+@NotEmpty : null 안됨 , 비어있으면 안됨
+@NotNull  : null 안됨
 
 ---
 
