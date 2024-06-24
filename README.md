@@ -204,16 +204,40 @@ public class GlobalExceptionAdvice {
 [ 참고 출처 : https://velog.io/@bagt/Database-%EB%82%99%EA%B4%80%EC%A0%81-%EB%9D%BD-%EB%B9%84%EA%B4%80%EC%A0%81-%EB%9D%BD ] 
 
 #### 비관적 락 
-
+Repeatable Read : update 방지 , insert 방지 안됨 , 공유락 이라고도 함
+Serializable Read : update 방지 , insert 방지 , 배타락 이라고도 함
 
 #### 낙관적 락 
 - 자원에 락을 걸지않고 "동시성 문제가 발생하면 그때 처리한다" 
 - 별도의 컬럼을 추가 (version , hashcode , timestamp 등) 해서 충돌을 막는다.
 - UPDATE에 실패한다고 해도 예외가 아니라 0row를 리턴하므로 앱단에서 롤백등을 처리할 수 있다.
 - @Version을 이용해 낙관적 락을 구현하고, 낙관적 락 발생시 ObjectOptimisticLockingFailureException 예외를 발생시킨다.
-- 
 
 
+#### 성능은 누가 더 좋을까? 
+
+if) 충돌이 별로 없다면
+낙관적 락이 더 좋다 -> 따로 트랜잭션 필요 없기 때문에 
+비관적 락은 데이터 자체에 락을 걸어 동시성 저하 및 데드락 발생 가능성 있음 
+
+if) 충돌이 잦다면? 
+비관적 락이 더 유리하다 -> 트랜잭션 롤백하면 끝
+낙관적 락은 수동 롤백 + update 처리도 해줘야 한다 
+<br> 
+
+이 구현과제에서는 뭐가 더 유리할까? 
+
+수강신청이나 이력적재로 INSERT 가 많이 발생한다. 하지만 INSERT 는 낙관락 , 비관락 둘다 직접 영향을 받지 않는다. 
+그리고 mysql의 경우 다수의 서버라면 기본 키의 충돌이 발생할 수 있다.
+해결방법으로는 각 서버의 AUTO_INCREMENT_OFFSET 를 고유하게 세팅할 수 있게 하거나 UUID() 를 이용한다. 
+이 경우에는 UUID() 를 사용해야겠네?? (H2도 동일) 
+UPDATE 의 경우에는 그렇게 많이 발생하지 않을 것 같다. 
+
+<br> 
+
+결론 : 낙관적 락을 사용하겠다. 
+
+<br> 
 
 ---
 
