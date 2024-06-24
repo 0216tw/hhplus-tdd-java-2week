@@ -141,74 +141,7 @@ Ref: lecture_schedule.lecture_id < enrollment.lecture_id   <br>
 ### 개발 과정
 2024.06.23 spring 세팅 요구사항 분석, ERD 작성 및 구축 , LectureController 구축 , Controller API 단위 테스트
 
-2024.06.24 할일 
-일단 아래 소스 분석 및 공부하고 날짜 검증을 위한 별도의 어노테이션 + 클래스 생성하자 
-```java
-package com.plusbackend.week2.validation;
-
-import javax.validation.Constraint;
-import javax.validation.Payload;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-@Constraint(validatedBy = DateValidator.class)
-@Target({ ElementType.FIELD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ValidDate {
-    String message() default "유효하지 않은 날짜 형식입니다. yyyyMMdd 형식이어야 합니다.";
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
-}
-```
-
-```java
-package com.plusbackend.week2.validation;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-public class DateValidator implements ConstraintValidator<ValidDate, String> {
-
-    private static final String DATE_FORMAT = "yyyyMMdd";
-
-    @Override
-    public void initialize(ValidDate constraintAnnotation) {
-    }
-
-    @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null) {
-            return false;
-        }
-
-        if (value.length() != 8 || !value.matches("\\d{8}")) {
-            return false;
-        }
-
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        sdf.setLenient(false);
-
-        try {
-            sdf.parse(value);
-        } catch (ParseException e) {
-            return false;
-        }
-
-        return true;
-    }
-}
-
- @NotBlank(message = "LectureDy는 필수 입력값입니다.")
-    @ValidDate // 커스텀 날짜 검증 어노테이션 적용
-    private String lectureDy; // 강의 일자 (날짜로 검증 필요)
-
-```
-
-
+2024.06.24 Controller 날짜 관련 검증 어노테이션 추가 , Service 테스트 케이스 작성 및 구축  , 메세지 관리를 enum으로 변경
 
 <br><br> 
 
@@ -221,7 +154,13 @@ public class DateValidator implements ConstraintValidator<ValidDate, String> {
 입력값 검증은 어디서 어떻게 해야할까? 
 DTO와 JPA를 혼용할까, 따로 쓸까? 업계에서는 DTO JPA 혼용이 많다던데 
 
+단위테스트를 작성하다보면서 느낀건데... Contoller를 먼저 테스트하니까 나중에 Service 만들때 또 수정하고, Service를 만들다보니까 나중에 Repo를 수정하면 또 수정할텐데 
+역으로 진행하는게 맞나? 아니면 이런식으로 계속 보수가 발생하는건가..
 
+Controller부터 하자니 계속 변경이 발생한다. 
+이번엔 반대로 @Entity를 먼저 만들면서 DTO,Domain -> Repository -> Service -> Controller 순으로 확장해보자. 아 이게 바텀업인가???
+
+탑다운과 바텀업의 차이나 장단점은 뭘까 ??
 
 ---
 알게된 사실 
