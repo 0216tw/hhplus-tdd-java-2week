@@ -136,9 +136,9 @@ Ref: lecture_schedule.lecture_id < enrollment.lecture_id   <br>
 - 메세지 관리용 enum 클래스 생성  <br> 
 
 #### 2024.06.25 (1차 제출일 , 목표 : ERD구축(완료) , 2가지API구축(진행예정) , 아키텍처처리(진행중)
-- 할일 : Repository 연결 테스트 및 복합키일때 값 적재 방식 확인
-- 이후 서비스 메서드 TDD 기반으로 구현하고 1차적 제출
-
+- Repository 연결 테스트 및 복합키일때 값 적재 방식 테스트
+- 서비스 TDD 기반 구현
+- 
 
 --- 
 
@@ -213,6 +213,16 @@ Serializable Read : update 방지 , insert 방지 , 배타락 이라고도 함
 - 별도의 컬럼을 추가 (version , hashcode , timestamp 등) 해서 충돌을 막는다.
 - UPDATE에 실패한다고 해도 예외가 아니라 0row를 리턴하므로 앱단에서 롤백등을 처리할 수 있다.
 - @Version을 이용해 낙관적 락을 구현하고, 낙관적 락 발생시 ObjectOptimisticLockingFailureException 예외를 발생시킨다.
+
+<br>
+낙관적 락 예시 
+(1) 처리할 도메인에 @Version 필드 추가 ( 동시성 제어 목적, 현재 데이터 버전과 트랜잭션 시작 시점을 비교해 일치하면 업데이트 , 일치하지 않으면 충돌 알림) 
+
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/fc32e9cb-e85e-4edb-bcf1-514f6ba17fee)
+
+(2) Service 계층에서 save 메서드 호출시 OptimisticLockException (충돌시 발생하는 낙관적 락 예외) 을 처리하도록 함 
+
+(3) 근데 insert 목적이라면 낙관적 락의 의미가 없지 않나 .. 다수 인스턴스 환경이라면 key error 일거고
 
 
 #### 성능은 누가 더 좋을까? 
