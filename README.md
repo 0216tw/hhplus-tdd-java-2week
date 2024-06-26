@@ -138,7 +138,10 @@ Ref: lecture_schedule.lecture_id < enrollment.lecture_id   <br>
 #### 2024.06.25 (1차 제출일 , 목표 : ERD구축(완료) , 2가지API구축(진행예정) , 아키텍처처리(진행중)
 - Repository 연결 테스트 및 복합키일때 값 적재 방식 테스트
 - 서비스 TDD 기반 구현
-- 
+
+#### 2024.06.25 
+- 서비스 TDD 기반 구현
+- 동시성 테스트
 
 --- 
 
@@ -223,6 +226,9 @@ Serializable Read : update 방지 , insert 방지 , 배타락 이라고도 함
 (2) Service 계층에서 save 메서드 호출시 OptimisticLockException (충돌시 발생하는 낙관적 락 예외) 을 처리하도록 함 
 
 (3) 근데 insert 목적이라면 낙관적 락의 의미가 없지 않나 .. 다수 인스턴스 환경이라면 key error 일거고
+요지는 수강 신청 대상이 30명일때를 조회하는 시점을 
+비관적으로 막을 건지 낙관적으로 막을 건지를 보는건가? 
+
 
 
 #### 성능은 누가 더 좋을까? 
