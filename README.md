@@ -6,17 +6,6 @@
 - 특강 신청 가능 목록 조회 API 
 ### 고려할 사항 : 클린코드 , 클린아키텍쳐 , 동시성 , TDD 
 
-2024-06-27기준 남은 과제 : 
-
-1. 계층 및 추상화 (리팩토링) 
-적절한 형태의 추상화를 통해 DB 의존성과 비즈니스 로직을 격리하였는지
-Domain Model 패턴 ( JPA , TypeORM ) 의 형태로 작성한 경우, Application Layer 와 같이 비즈니스 로직이 적절히 보호되는 형태의 아키텍처를 적용하였는지
-도메인과 DB 를 분리하는 형태의 아키텍처로 작성한 경우, 도메인 로직이 Datasource Layer 와 같은 외부 의존 계층으로부터 보호되는 형태의 아키텍처를 적용하였는지
-2. DB락을 고려한 동시성 이슈 고려 (비관락 , 낙관락 , 분산락? )
-3. 각 도메인에 대한 서비스의 책임 분리 (리팩토링) 
-
-
-
 
 <br>
 
@@ -33,13 +22,13 @@ Domain Model 패턴 ( JPA , TypeORM ) 의 형태로 작성한 경우, Applicatio
    <b>명시된 요구사항</b>
 </summary>
   <br> 
-1. 사용자는 userId 로 식별함 <br> 
-2. 강의 정원은 30명<br> 
-3. 정원 초과시 수강신청 실패 <br>
-4. 신청 정보는 히스토리 저장 <br>
-5. 특정날짜/특정강의 신청 후 동일 건 신청 불가 <br>
-6. 특강 신청 성공한 내역 리스트 응답 <br>
-7. 신청 가능한 특강 목록 리스트 응답 <br> 
+1. 사용자는 userId 로 식별함 OK<br> 
+2. 강의 정원은 30명 OK<br> 
+3. 정원 초과시 수강신청 실패 OK<br>
+4. 신청 정보는 히스토리 저장 OK<br>
+5. 특정날짜/특정강의 신청 후 동일 건 신청 불가 OK<br>
+6. 특강 신청 성공한 내역 리스트 응답 OK <br>
+7. 신청 가능한 특강 목록 리스트 응답 OK <br> 
 </details>
 
 <details> 
@@ -47,15 +36,15 @@ Domain Model 패턴 ( JPA , TypeORM ) 의 형태로 작성한 경우, Applicatio
    <b>추가 도출한 사항</b>
 </summary>
 <br> 
-1. 컬럼 추가시 강의 정원 n명으로 구성 가능 <br> 
+1. 컬럼 추가시 강의 정원 n명으로 구성 가능 OK <br> 
 2. ... <br>
 </details>
 
 <br>
 
-<h2>ERD (데이터 모델링 & DBML) -> 필요시 수정해야하는데 dbdiagram 터졌나 ??  </h2> <br>
+<h2>ERD (데이터 모델링 & DBML)  </h2> <br>
 
-![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/620fa04b-b082-4b22-8f72-fb055afa6912)
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/be7a4212-840d-4b0e-bae4-ab13220f6765)
 
 <a href="https://dbdiagram.io/d/6677a8115a764b3c722aa3d5">**링크**</a> 
 
@@ -82,6 +71,7 @@ Table lecture_schedule {  <br>
   lecture_dy varchar(8) [pk]  <br>
   start_date date [not null]  <br>
   end_date date [not null]  <br>
+  enroll_stmt varchar(10) [not null] <br>
   created_at timestamp [not null]  <br>
 }  <br>
   <br>
@@ -109,33 +99,6 @@ Ref: lecture_schedule.lecture_id < enrollment.lecture_id   <br>
 <br>
 </details>
    
-<details> 
-<summary>
-   <b>설계하면서 고민했던 것</b>
-</summary>
-<br>
-  <b>1. 수강 신청하고 취소하면? </b> <br>
-  수강신청목록(enrollment) 테이블에서 DELETE , 수강신청목록이력(enrollment_history) 테이블에 INSERT<br>
-  예) 수강 신청시 enrollment -> insert , enrollment_history -> insert (상태값 = 신청) <br>
-  예) 수강 취소시 enrollment -> delete , enrollment_history -> insert (상태값 = 취소) <br>
-  두 테이블 사이 외래키 조건은 없음 (원본 삭제해도 이력 남기기 목적) <br><br>
- 
- <b>2.동일한 특강, 다른 날에도 가능</b>  <br>
- 다른 날짜에 같은 특강을 또 할 수 있다면 특강ID + 날짜를 PK로 해야 중복발생 안함 -> <span style="color:red">고민중.. 성능을 고려하면 식별관계가 맞지 않나? 비식별로 해도 괜찮을까? 및 이유가 있나? </span> <br>  
- 특강일정(lecture_schedule) 테이블 -> lecture_id , lecture_dy <br>
- 사용자(user)테이블 -> user_id <br>
- 위 세게 조합해 수강신청(enrollment) 테이블 키 조합 처리 <br> 
- 시간까지는 고려하지 않음 <br><br>
- 
-<b>4. 특강 정원을 FIX 해야할까? </b>   <br>
-      컬럼 추가를 해서 동적으로 만들어보자 <br> <br>
-
-<b>5. 사용자는 회원/비회원 모두 신청 가능?</b>   <br>  
-가능하다면 신청시 name , phone 을 필수로 받아서 phone에 unique 조건 주고 대상을 식별하자 <br><br>
-</details> 
-
-<br><br>
-
 ### 개발 과정
 #### 2024.06.23 
 - spring 세팅
@@ -144,30 +107,35 @@ Ref: lecture_schedule.lecture_id < enrollment.lecture_id   <br>
 - LectureController 구축 및 Controller API 단위 테스트 -> ${\textsf{\color{magenta}	그런데 controller 먼저 하자니 TC 변경이 너무 많다.. 내부로직인 Domain부터 뻗어가는게 맞을까? 이게 bottom up 인가?}}$ <br>  
 
 #### 2024.06.24 
-- Controller 날짜 관련 검증 어노테이션 추가
-- Service 테스트 케이스 작성 및 구축
+- Controller 날짜 관련 검증 어노테이션 추가 <br>
+- Service 테스트 케이스 작성 및 구축 <br>
 - 메세지 관리용 enum 클래스 생성  <br> 
 
 #### 2024.06.25 (1차 제출일 , 목표 : ERD구축(완료) , 2가지API구축(진행예정) , 아키텍처처리(진행중)
-- Repository 연결 테스트 및 복합키일때 값 적재 방식 테스트
-- 서비스 TDD 기반 구현
+- Repository 연결 테스트 및 복합키일때 값 적재 방식 테스트 <br>
+- 서비스 TDD 기반 구현 <br>
 
-#### 2024.06.25 
-- 서비스 TDD 기반 구현
-- 동시성 테스트
+#### 2024.06.26
+- 서비스 TDD 기반 구현 <br>
+- 동시성 테스트(비관락 사용) <br>
 
+#### 2024.06.27 
+- 멘토링 예정 <br>
+- 이후 리팩토링 진행 <br>
+
+#### 2024.06.28 (2차 제출일) 
 --- 
 
 ### 궁금증 적어놓기 
 
 - 탑다운과 바텀업의 차이나 장단점은 뭘까? 
 
-
 ---
 
 ### 알게된 사실 
 
-#### 1. DTO 와 Domain객체의 차이와 나누는 이유 
+<details>
+   <summary> <b>1. DTO 와 Domain객체의 차이와 나누는 이유</b> </summary>
 DTO는 데이터 전달 및 표현에 집중, 비즈니스 로직이 없음 <br> 
 Domain은 도메인 비즈니스 로직 존재 , 데이터 상태 관리 가능,  DB 엔터티와 매핑 가능 <br><br>
 
@@ -184,8 +152,12 @@ DTO 와 Domain 둘다 가능  <br>
 Domain은 비즈니스 로직 및 자신의 데이터 변경등에 대한 검증 필요시 유효성 처리 <br>
 service는 트랜잭션 관리나 도메인 객체간의 조합에 집중할 수 있음 <br> <br>
 
-#### 2. 전역 예외 처리기를 이용하면 404 NotFound 와 같은 오류를 커스텀화 할 수 있음
+</details>
 
+<details>
+   
+   <summary> <b>2. 전역 예외 처리기를 이용하면 404 NotFound 와 같은 오류를 커스텀화 할 수 있음</b> </summary>
+   
 (1) ControllerAdvice로 특정 예외를 캐치 및 커스터마이징 가능 <br> 
 
 ```java
@@ -198,7 +170,13 @@ public class GlobalExceptionAdvice {
 }
 ```
 
-#### 3. 잘못된 필드명은 @RequestBody에서 그냥 무시하고 매핑할 수 있음
+</details>
+
+<details>
+   <summary> <b>3. 잘못된 필드명은 @RequestBody에서 그냥 무시하고 매핑할 수 있음</b> </summary>
+
+   
+(1) ControllerAdvice로 특정 예외를 캐치 및 커스터마이징 가능 <br> 
 
 ![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/74ba7919-cd52-44f1-8626-48449dab54f9)
 
@@ -209,15 +187,24 @@ public class GlobalExceptionAdvice {
 ![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/a67a17c4-dd10-4cd6-b6a5-c83436240780)
 
 
-#### 4. @NotNull , @NotEmpty , @NotBlank 
+
+</details>
+
+
+<details>
+   <summary> <b>4. @NotNull , @NotEmpty , @NotBlank </b> </summary>
 
 @NotBlank : null 안됨 , 비어있으면 안됨 , 공백문자만 있는거 안됨
 @NotEmpty : null 안됨 , 비어있으면 안됨
 @NotNull  : null 안됨
 
----
+</details>
 
-#### 5. 비관적 락과 낙관적 락 , 언제 뭘 쓰는게 좋을까? 
+
+
+<details>
+   <summary> <b>5. 비관적 락과 낙관적 락 , 언제 뭘 쓰는게 좋을까?  </b> </summary>
+
 [ 참고 출처 : https://velog.io/@bagt/Database-%EB%82%99%EA%B4%80%EC%A0%81-%EB%9D%BD-%EB%B9%84%EA%B4%80%EC%A0%81-%EB%9D%BD ] 
 
 #### 비관적 락 
@@ -239,10 +226,7 @@ Serializable Read : update 방지 , insert 방지 , 배타락 이라고도 함
 (2) Service 계층에서 save 메서드 호출시 OptimisticLockException (충돌시 발생하는 낙관적 락 예외) 을 처리하도록 함 
 
 (3) 근데 insert 목적이라면 낙관적 락의 의미가 없지 않나 .. 다수 인스턴스 환경이라면 key error 일거고
-요지는 수강 신청 대상이 30명일때를 조회하는 시점을 
-비관적으로 막을 건지 낙관적으로 막을 건지를 보는건가? 
-
-
+요지는 수강 신청 대상이 30명일때를 조회하는 시점을 , 비관적으로 막을 건지 낙관적으로 막을 건지를 보는건가? 
 
 #### 성능은 누가 더 좋을까? 
 
@@ -255,62 +239,64 @@ if) 충돌이 잦다면?
 낙관적 락은 수동 롤백 + update 처리도 해줘야 한다 
 <br> 
 
-이 구현과제에서는 뭐가 더 유리할까? 
+이 구현과제에서는 뭐가 더 유리할까?
 
-수강신청이나 이력적재로 INSERT 가 많이 발생한다. 하지만 INSERT 는 낙관락 , 비관락 둘다 직접 영향을 받지 않는다. 
-그리고 mysql의 경우 다수의 서버라면 기본 키의 충돌이 발생할 수 있다.
-해결방법으로는 각 서버의 AUTO_INCREMENT_OFFSET 를 고유하게 세팅할 수 있게 하거나 UUID() 를 이용한다. 
-이 경우에는 UUID() 를 사용해야겠네?? (H2도 동일) 
-UPDATE 의 경우에는 그렇게 많이 발생하지 않을 것 같다. 
+처음에는 INSERT 를 고려하여 낙관적 락으로 진행을 했다. (왜냐면 INSERT는 충돌이 거의 발생하지 않을 것이기 때문이다)
+문제는 조회시점에 정원 30명 초과를 제대로 처리하지 못했기에 인원수를 컬럼으로 추가하고 UPDATE하는 방향으로 진행했다.
+이 경우 UPDATE가 매우 활발히 발생하는 충돌이 높은 환경이므로 비관적 락을 사용해 처리했다. 
 
 <br> 
 
-결론 : 낙관적 락을 사용하겠다. 
+</details>
 
-<br> 
 
-#### 6. 테스트 환경에서 @Transactional 을 쓰면 메서드 완료 후 자동 롤백된다. 
-그러니까 데이터가 계속 없었구나 
+<details>
+   <summary> <b>6. 테스트 환경에서는 @Transactional 을 쓰면 메서드 완료 후 자동 롤백된다.  </summary>
+</details>
 
-####7. jpql 에서 테이블이름은 엔터티명칭을 써야한다. 컬럼도..
+<details>
+   <summary> <b>7. jpql 에서 테이블이름은 엔터티명칭을 써야한다. 컬럼도.. </summary>
+</details>
 
 ---
 
 ### 이슈 정리 
 
-#### 1. Lombok이 안먹혔는데 아래와 같이 처리해서 해결
+#### 1. Lombok이 안먹혔던 이슈
 
 ![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/2e72d07d-7ada-4268-b7b7-889bd007690c)
 
-#### 2. 
-mockMvc를 이용해서 부적절한 URL 등을 테스트하려고 할때 404 not found 예외가 어드바이스에 잡혀야하는데  <br>
-perform 은 오직 Exception을 처리한다.. 따로 404 나 400 을 리턴하는 방법은?  <br>
-혹은 단위테스트 레벨에서는 이 방법은 불가능한 것인가? @WebMvcTest 쓰면 되지 않나?  <br>
+#### 2. 비관적 락을 해봤지만 .. 
 
-![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/5e306577-27af-498d-a752-8a935a1baba4)
+![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/8b6c8bba-02ca-46d0-a691-e01c5f19fa39)
 
-![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/b110bc68-8576-4d24-998e-af170764f73c)
-
-문제해결! <br> 
-먼저 Advice에 Exception.class 예외 처리를 제거했다. (아마 예외가 구체적으로 바뀌기 전에 Exception으로 그냥 처리해버린게 아닐까..이건 더 알아봐야한다) <br> 
-
-위 Exception을 제거했더니 테스트 케이스에 대해서 404 , 405 등이 제대로 떴다.  <br> 
-
-그런데 404같은 경우에 NoHandlerFoundException 가 아니라 NoResourceFoundException 으로 해야 404가 잡혔다. <br> 
-
-![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/7faa677a-fe3a-4399-9d6b-c4a96bd01c13)
-
-![image](https://github.com/0216tw/hhplus-tdd-java-2week/assets/140934688/3c92025a-e341-499f-98c8-6fbe4d68583a)
-
-근데 이렇게 예외를 상세하게 하는것이 좋나? 아니면 500 에러로 추상화하는게 좋은가? 
+findByLectureIdAndLectureDyWithPessimisticLock 호출 시점에 비관락을 걸었다.  <br>
+목적은 해당 테이블을 읽을 때 Lock을 걸어 다른 대상이 처리 못하게 하는 것이었는데  <br>
+비관 락은 특정 행의 update 나 select 에 영향을 주지만 , insert에는 주지 않아 계속 추가적인 값이 들어갔다.  <br>
+<br>
+어떻게 하면 DB에 30명까지만 들어가게 할 수 있을까? 접근 방식을 조금 바꿨다.<br>
+PESSIMISTIC_WRITE 특성이 테이블 내의 행을 비관적으로 잠근다고 한다. (테이블단위 아니라는 소리)<br>
+그럼 수강일정 테이블에 신청현황 컬럼을 추가하고 이 값을 UPDATE 할때 비관락을 한다면 어떨까? (여러 행에 대해 lock이 발생하지만 테이블 단위는 아니므로 접근 가능) <br>
+<br>
+즉, 신청이 들어올 경우 수강일정컬럼의 수강현황을 비관적 lock 후 읽어 30이면 더이상 들어갈 수 없게 한다. <br>
+만약 30을 넘지 않으면 +1을 update한다. 이후 save() 을 진행한다.<br>
+<br>
+비관적락은 SELECT FOR UPDATE , 즉 UPDATE를 예상하고 해당 행에 락을 거는 것이다. <br>
+따라서 SELECT 부분에 LOCK처리를 하고 이후에 UPDATE를 하면 된다. (난 JPA를 처음 공부하다보니 UPDATE에 LOCK을 설정하는 등 삽질을 좀 했다..) <br>
+<br>
 
 
-### TDD를 하다보면서 느끼는 점 
+### TDD를 하다보면서 느낀 점
 
-1. 안정감
-최소 이거는 되나? 를 기점으로 살을 붙이다 보니 잠재 오류를 최소화 할 수 있다.
+<br>
 
-2. 자신감
-코드를 작성하면서 불안감이 많이 해소된다.
-
-3. 나중에는 모든 테스트가 통과해야만 빌드를 하므로 안전 장치로 작동을 할 수 있다.
+1. 안정감 : 최소 이거는 실행되나? 를 기점으로 로직에 살을 붙이다 보니 잠재 오류를 최소화 할 수 있다.<br>
+<br>
+2. 자신감 : 코드를 작성하면서 불안감이 많이 해소된다.<br>
+<br>
+3. 나중에는 모든 테스트가 통과해야만 빌드를 하므로 안전 장치로 작동을 할 수 있다.<br>
+<br>
+4. 하지만 아직은 큰 로직이 변경 되거나 할때 TC를 제대로 활용하지 못하는 거 같다.<br>
+<br>
+5. 테스트 자동화의 개념을 공부해봐야 겠다.<br>
+<br>
