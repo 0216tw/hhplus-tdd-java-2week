@@ -1,6 +1,5 @@
 package com.plusbackend.week2.exception;
 
-import com.plusbackend.week2.enums.ResponseMessage;
 
 public class BusinessException extends RuntimeException {
 

@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plusbackend.week2.ApiControllerAdvice;
 import com.plusbackend.week2.Week2Application;
 import com.plusbackend.week2.controller.LectureController;
+import com.plusbackend.week2.service.EnrollmentService;
 import com.plusbackend.week2.service.LectureService;
 import com.plusbackend.week2.service.impl.LectureServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -42,6 +44,9 @@ public class LectureControllerBase {
 
     @MockBean
     protected LectureService lectureService;
+
+    @MockBean
+    protected EnrollmentService enrollmentService;
 
     @BeforeEach
     protected void setUp() {

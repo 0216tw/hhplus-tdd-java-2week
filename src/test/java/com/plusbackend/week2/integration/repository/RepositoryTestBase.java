@@ -1,4 +1,4 @@
-package com.plusbackend.week2.unit.repository;
+package com.plusbackend.week2.integration.repository;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
 
 /*
- * DB 커넥트가 되었는지 확인하는 테스트 코드
+ * DB적재 정상여부를 확인하는 테스트 코드
  */
 
 @DataJpaTest

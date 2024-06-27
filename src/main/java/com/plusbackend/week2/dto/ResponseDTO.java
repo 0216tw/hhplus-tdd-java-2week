@@ -10,26 +10,17 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseDTO {
+public class ResponseDTO<T> {
 
     @JsonProperty
     private String code;
     @JsonProperty
     private String message;
+    @JsonProperty
+    private T data;
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
+    public ResponseDTO(String code, String message) {
         this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
         this.message = message;
     }
 }

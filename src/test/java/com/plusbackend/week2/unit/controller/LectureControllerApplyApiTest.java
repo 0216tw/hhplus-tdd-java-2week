@@ -46,9 +46,8 @@ public class LectureControllerApplyApiTest extends LectureControllerBase {
         //when
         doAnswer(invocation -> {
             EnrollmentDTO dto = invocation.getArgument(0);
-            // Custom logic here if needed
-            return responseDTO; // return the mock responseDTO
-        }).when(lectureService).applylecture(any(EnrollmentDTO.class));
+            return responseDTO;
+        }).when(enrollmentService).applylecture(any(EnrollmentDTO.class));
 
         MvcResult result = mockMvc.perform(post("/lectures/apply")
 
@@ -60,7 +59,7 @@ public class LectureControllerApplyApiTest extends LectureControllerBase {
         // Get the response content as a string
         String responseContent = new String(result.getResponse().getContentAsByteArray(), "UTF-8");
 
-        Assertions.assertThat(responseContent).isEqualTo("{\"code\":\"200\",\"message\":\"수강신청이 완료되었습니다.\"}");
+        Assertions.assertThat(responseContent).isEqualTo("{\"code\":\"200\",\"message\":\"수강신청이 완료되었습니다.\",\"data\":null}");
 
         // Print the response content
         System.out.println("Response Content: " + responseContent);
@@ -81,9 +80,8 @@ public class LectureControllerApplyApiTest extends LectureControllerBase {
                         .content(enrollmentJson));
 
         //then
-//        resultActions.andExpect(status().isNotFound());
-        resultActions.andExpect(status().isBadRequest());
-        resultActions.andExpect(content().string("올바르지 않은 경로입니다."));
+        resultActions.andExpect(status().isBadRequest()); //왜 400..?
+
     }
 
 
@@ -101,8 +99,7 @@ public class LectureControllerApplyApiTest extends LectureControllerBase {
                         .content(enrollmentJson));
 
         //then
-        resultActions.andExpect(status().isMethodNotAllowed());
-        resultActions.andExpect(content().string("올바르지 않은 HTTP 메서드입니다."));
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @Test

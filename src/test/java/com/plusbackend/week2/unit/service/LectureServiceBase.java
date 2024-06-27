@@ -1,8 +1,10 @@
 package com.plusbackend.week2.unit.service;
 
+import com.plusbackend.week2.repository.EnrollmentHistoryRepository;
 import com.plusbackend.week2.repository.EnrollmentRepository;
 import com.plusbackend.week2.repository.LectureScheduleRepository;
 import com.plusbackend.week2.repository.UserRepository;
+import com.plusbackend.week2.service.impl.EnrollmentServiceImpl;
 import com.plusbackend.week2.service.impl.LectureServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,11 +26,17 @@ public class LectureServiceBase {
     @InjectMocks
     public LectureServiceImpl lectureService;
 
+    @InjectMocks
+    public EnrollmentServiceImpl enrollmentService;
+
     @Mock
     public EnrollmentRepository enrollmentRepository;
 
     @Mock
     LectureScheduleRepository lectureScheduleRepository;
+
+    @Mock
+    EnrollmentHistoryRepository enrollmentHistoryRepository;
 
     @BeforeEach
     public void setUp() {

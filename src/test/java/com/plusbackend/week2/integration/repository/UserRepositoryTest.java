@@ -1,4 +1,4 @@
-package com.plusbackend.week2.unit.repository;
+package com.plusbackend.week2.integration.repository;
 
 /*
 * 사용자 DB 테이블 생성 및 데이터 적재 테스트
@@ -10,10 +10,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Commit;
+import org.springframework.test.annotation.Rollback;
 
 import java.util.List;
 
-
+/*
+ * 테스트 정보
+ * User 테이블에 정상 insert 되는지 확인
+ */
 public class UserRepositoryTest extends RepositoryTestBase{
 
 
@@ -21,7 +25,7 @@ public class UserRepositoryTest extends RepositoryTestBase{
     private UserRepository userRepository;
 
     @Test
-    @Commit
+    @Rollback
     public void insert() {
         //given
         User user1 = new User(1L , "테스트1" , "010-1111-1111");

@@ -53,12 +53,4 @@ public class ApiControllerAdvice  {
     }
 
 
-    /*
-    @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<String> handleGeneralException(Exception e) {
-
-        return new ResponseEntity<>("서버 내부 오류가 발생했습니다." , HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-    아 이놈이 문제였네
-     */
 }

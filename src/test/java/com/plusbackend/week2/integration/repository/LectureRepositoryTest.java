@@ -1,4 +1,4 @@
-package com.plusbackend.week2.unit.repository;
+package com.plusbackend.week2.integration.repository;
 
 
 
@@ -8,11 +8,13 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Commit;
+import org.springframework.test.annotation.Rollback;
 
 import java.util.List;
 
 /*
- * 강의 DB 테이블 생성 및 데이터 적재 테스트
+ * 테스트 정보
+ * Lecture 테이블에 정상 insert 되는지 확인
  */
 public class LectureRepositoryTest extends RepositoryTestBase{
 
@@ -21,7 +23,7 @@ public class LectureRepositoryTest extends RepositoryTestBase{
     private LectureRepository lectureRepository;
 
     @Test
-    @Commit
+    @Rollback
     public void insert() {
         //given
         Lecture lecture1 = new Lecture(1L , "플러스백엔드5기특강"  , 30L , "이 강의는 말이죠..~~");
