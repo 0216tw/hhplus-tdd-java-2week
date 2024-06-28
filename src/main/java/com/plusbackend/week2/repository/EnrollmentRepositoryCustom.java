@@ -11,4 +11,4 @@ public interface EnrollmentRepositoryCustom {
 
     public List<Enrollment> findByLectureIdAndLectureDy(long lectureId , String lectureDy);
 
-}
+} //git add

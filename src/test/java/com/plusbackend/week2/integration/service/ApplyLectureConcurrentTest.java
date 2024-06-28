@@ -115,3 +115,4 @@ public class ApplyLectureConcurrentTest {
         Assertions.assertThat(enrollments.size()).isEqualTo(30);
     }
 }
+//git add

@@ -2,13 +2,11 @@ package com.plusbackend.week2.controller;
 
 import com.plusbackend.week2.dto.EnrollmentDTO;
 import com.plusbackend.week2.dto.ResponseDTO;
-import com.plusbackend.week2.dto.UserDTO;
 import com.plusbackend.week2.service.EnrollmentService;
 import com.plusbackend.week2.service.LectureService;
 import com.plusbackend.week2.validation.UserIdValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,5 +40,5 @@ public class LectureController {
         UserIdValidator.isValid(userId);
         ResponseDTO responseDto = lectureService.getAvailableLecture(userId);
         return ResponseEntity.ok(responseDto);
-    }
+    }  //git add
 }

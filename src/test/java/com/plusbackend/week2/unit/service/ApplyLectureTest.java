@@ -94,4 +94,4 @@ public class ApplyLectureTest extends LectureServiceBase {
         verify(enrollmentRepository, times(1)).findById(any(EnrollmentId.class));
         verify(enrollmentRepository, never()).save(any(Enrollment.class));
     }
-}
+} //git add

@@ -25,6 +25,6 @@ public class Enrollment {
 
     public Enrollment(EnrollmentId enrollmentId) {
         this.id = enrollmentId;
-    }
+    }  //git add
 
 }

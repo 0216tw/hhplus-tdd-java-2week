@@ -23,4 +23,4 @@ public class EnrollmentId implements Serializable {
     @Column(name = "lecture_dy")
     private String lectureDy;
 
-}
+}  //git add

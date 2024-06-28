@@ -67,6 +67,6 @@ public class LectureScheduleRepositoryImpl implements LectureScheduleRepositoryC
     }
 
 
-
+    //git add
 
 }
