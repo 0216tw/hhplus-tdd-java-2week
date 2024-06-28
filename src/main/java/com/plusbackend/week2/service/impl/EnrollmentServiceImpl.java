@@ -61,12 +61,12 @@ public class EnrollmentServiceImpl  implements EnrollmentService {
         lectureScheduleRepository.updateEnrollCount(enrollment);
         enrollmentRepository.save(enrollment);
         enrollmentHistoryRepository.save( //이력적재
-                    new EnrollmentHistory(
-                            enrollment.getId().getUserId(),
-                            enrollment.getId().getLectureId(),
-                            enrollment.getId().getLectureDy(),
-                            "reg" //취소는 cnl
-                    ));
+                new EnrollmentHistory(
+                        enrollment.getId().getUserId(),
+                        enrollment.getId().getLectureId(),
+                        enrollment.getId().getLectureDy(),
+                        "reg" //취소는 cnl
+                ));
 
 
         return new ResponseDTO("200" , ResponseMessage.ENROLLMENT_SUCCESS.getMessage());
